@@ -20,8 +20,8 @@ upload = new multer({
 
 router.post('/users', async (req, res) => {
     try {
-        const user = new User(req.body)
-        await user.save();
+        const user = await new User(req.body).save();
+        //await user.save();
         const token = await user.generateAuthToken();
         sendWelcomeEmail(user.email, user.name);
         res.status(201).send({ user, token });
@@ -71,9 +71,8 @@ router.patch('/users/me', auth, async (req, res) => {
     const updates = Object.keys(req.body);  // returns an array of a given object's own property names
     const allowedUpdates = ['name', 'email', 'password', 'age'];
     const isValidOperation = updates.every((update) => allowedUpdates.includes(update));
-
     if (!isValidOperation)
-        return  res.status(404).send({ error: 'invalid updates!'})
+        return  res.status(400).send({ error: 'invalid updates!'})
 
     try {
         updates.forEach((update) => req.user[update] = req.body[update])
